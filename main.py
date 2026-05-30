@@ -1,3 +1,6 @@
+import json
+
+
 def show_menu():
     print("\n1 - Добавить трату")
     print("2 - Показать все траты")
@@ -5,10 +8,23 @@ def show_menu():
     print("4 - Выход")
 
 
+def load_expenses():
+    try:
+        with open('expenses.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+
+def save_expenses(expenses):
+    """Сохраняет траты в файл expenses.json"""
+    with open('expenses.json', 'w', encoding='utf-8') as f:
+        json.dump(expenses, f, ensure_ascii=False, indent=2)
+
+
 def add_expense(expenses):
     name = input("Название: ").strip()
 
-    # Проверяем, что сумма - число
     while True:
         try:
             amount = float(input("Сумма: "))
@@ -17,10 +33,11 @@ def add_expense(expenses):
                 continue
             break
         except ValueError:
-            print("Ошибка! Введите число (например: 150 или 99.50)")
+            print("Ошибка! Введите число")
 
     expenses.append({"name": name, "amount": amount})
-    print(f"✓ Трата '{name}' на {amount} руб. добавлена!")
+    save_expenses(expenses)
+    print(f"✓ Трата '{name}' на {amount} руб. добавлена и сохранена!")
 
 
 def show_all(expenses):
@@ -43,7 +60,7 @@ def show_total(expenses):
 
 
 def main():
-    expenses = []
+    expenses = load_expenses()
 
     while True:
         show_menu()
@@ -56,7 +73,8 @@ def main():
         elif choice == "3":
             show_total(expenses)
         elif choice == "4":
-            print("\nПока!")
+            save_expenses(expenses)
+            print("\nПока! Траты сохранены в файл expenses.json")
             break
         else:
             print("Ошибка! Выберите число от 1 до 4.")
